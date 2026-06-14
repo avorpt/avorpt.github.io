@@ -1,0 +1,1396 @@
+/* ===========================================================================
+   AVOR — stylesheet
+   ------------------------------------------------------------------------
+   [01]  Self-hosted fonts
+   [02]  Base & tokens
+   [03]  Clock
+   [04]  Views
+   [05]  Splash
+   [06]  Menu tiles
+   [07]  Tabs
+   [08]  Player
+   [09]  Container
+   [10]  List
+   [11]  Weather
+   [12]  Call
+   [13]  Content placeholder
+   [14]  Map
+   [15]  Keyboard (address input)
+   [16]  Dialpad
+   ========================================================================
+   ======================================================================== */
+
+/* === [01] SELF-HOSTED FONTS ============================================= */
+@font-face {
+    font-family: 'Alexandria';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/assets/fonts/alexandria-variable.woff2') format('woff2');
+}
+
+/* === [02] BASE & TOKENS ================================================= */
+:root {
+    /* color */
+    --bg: #000000;
+    --bg-raised: #1a1a1a;
+
+    --text: #f5f5f5;
+    --text-dim: #a8a8a8;
+
+    --border: #f5f5f526;
+    --focus: #a8a8a8;
+
+    --active: #a8a8a82e;
+
+    /* font */
+    --font: 'Alexandria', 'Helvetica Neue', sans-serif;
+
+    /* spacing */
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* typo */
+    --text-xs: 0.7rem;
+    --text-sm: 0.85rem;
+    --text-base: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.5rem;
+    --text-2xl: 2rem;
+
+    /* letter spacing */
+    --tracking-tight: 0.02em;
+    --tracking-base: 0.04em;
+    --tracking-wide: 0.08em;
+    --tracking-wider: 0.1em;
+    --tracking-ui: 0.16em;
+    --tracking-caps: 0.2em;
+
+    /* line height */
+    --leading-tight: 1;
+    --leading-snug: 1.1;
+    --leading-wide: 1.5;
+    --leading-wider: 1.7;
+
+    /* easing */
+    --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+
+    /* layout */
+    --frame-aspect: 16 / 9;
+    --frame-max-width: 1440px;
+    /* fixed to the scaled screen, not the viewport — the whole stage is
+       uniformly scaled, so a vw-based height would change the container's
+       proportion of the screen (and thus the auto gaps) between desktop and
+       mobile. A fixed value keeps the composition identical at every size. */
+    --container-height: 620px;
+    --track-height: calc(var(--container-height) / 10);
+    --chrome-height: 3.5rem;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg-raised);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 400;
+    line-height: var(--leading-wide);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* HMI prototype — driven by keys/clicks, never text selection */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.ui-icon {
+    display: block;
+    width: var(--ui-icon-size, var(--text-xl));
+    height: var(--ui-icon-size, var(--text-xl));
+    color: inherit;
+    fill: currentColor;
+    flex-shrink: 0;
+    transform:
+        translateY(var(--ui-icon-y, 0))
+        scale(var(--ui-icon-scale, 1));
+    transform-origin: center;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* focus overlay */
+.focused:not(.navigation-route-card):not(.map-canvas) {
+    position: relative;
+    z-index: 1;
+}
+
+.focused:not(.navigation-route-card):not(.map-canvas)::after,
+.navigation-route-card.focused .navigation-route-copy::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 1px solid var(--focus);
+    pointer-events: none;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    /* fixed-resolution prototype scaled uniformly to fit any viewport (set by JS) */
+    transform: scale(var(--screen-scale, 1));
+    transform-origin: center center;
+    /* promote to a stable GPU layer so text rasterises once, not per frame —
+       stops the sub-pixel shimmer when views cross-fade at fractional scales */
+    will-change: transform;
+}
+
+.screen {
+    width: var(--frame-max-width);
+    aspect-ratio: var(--frame-aspect);
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hangs below the screen, out of flow — so the stage's layout box is just the
+   screen, which keeps the screen vertically centred. fitScreen reserves room
+   below for it, so opening it never moves the screen and never overflows. */
+.stage-caption {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking-wider);
+    color: var(--text-dim);
+}
+
+.stage-caption-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    cursor: pointer;
+    font-weight: 400;
+    list-style: none;
+    user-select: none;
+    transition: color 0.2s var(--ease);
+}
+
+.stage-caption-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.stage-caption-trigger:hover {
+    color: var(--text);
+}
+
+.stage-caption-chevron {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.25s var(--ease);
+}
+
+details[open] .stage-caption-chevron {
+    transform: rotate(-135deg) translateY(2px);
+}
+
+/* In-flow within the (absolute) .stage-caption, so opening it expands the
+   caption downward into the room fitScreen reserves below the screen. */
+.stage-caption-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    text-align: center;
+    font-weight: 400;
+    margin-top: var(--space-xs);
+    white-space: nowrap;
+}
+
+/* The infotainment is a desktop-only HMI prototype. On tablet/touch/phone
+   surfaces, cover the stage with an honest notice rather than forcing a layout
+   it was never built for. */
+.mobile-note {
+    display: none;
+}
+
+@media (max-width: 1024px), (any-pointer: coarse) {
+    .mobile-note {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--space-xl);
+        background: var(--bg-raised);
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: var(--tracking-wide);
+        line-height: var(--leading-wide);
+    }
+}
+
+/* === [03] CLOCK ========================================================= */
+.chrome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--chrome-height);
+    padding: 0 var(--space-lg);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.clock {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.clock-time {
+    color: var(--text);
+    font-weight: 400;
+}
+
+.clock-date {
+    color: var(--text-dim);
+    font-weight: 300;
+}
+
+.chrome-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--text-dim);
+}
+
+.chrome-status-icon,
+.chrome-call-icon {
+    --ui-icon-size: var(--text-xl);
+}
+
+.chrome-call-icon {
+    --ui-icon-y: 1px;
+    --ui-icon-scale: 1.08;
+    display: none;
+}
+
+.chrome-call-icon.active {
+    display: block;
+}
+
+.chrome-signal-icon {
+    --ui-icon-y: 3px;
+    --ui-icon-scale: 1.1;
+}
+
+/* === [04] VIEWS ========================================================= */
+.view {
+    position: absolute;
+    inset: 0;
+    padding-top: var(--chrome-height);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+    display: flex;
+    flex-direction: column;
+}
+
+/* visibility cascades to descendants (unlike pointer-events: none), so an
+   inactive view's scrollable .track-list can't intercept wheel events meant
+   for the active view stacked below it. Delay hiding until after fade-out. */
+.view.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s var(--ease-out), visibility 0s linear 0s;
+}
+
+/* === [05] SPLASH ======================================================== */
+.splash {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.splash-mark {
+    width: 15%;
+    opacity: 0;
+    animation: splashFade 1.6s var(--ease-out) 0.3s forwards;
+}
+
+@keyframes splashFade {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* === [06] MENU TILES ==================================================== */
+.menu-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 2fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 1px;
+    margin: var(--space-lg);
+}
+
+.tile {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    position: relative;
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.tile-svg-slot {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: clamp(0.5rem, 1vw, 1rem);
+    overflow: hidden;
+    transition: transform 0.2s var(--ease);
+}
+
+.tile-svg {
+    width: var(--icon-size, 4rem);
+    height: var(--icon-size, 4rem);
+    display: block;
+    flex: 0 0 auto;
+    color: var(--text-dim);
+    transition: color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.tile-svg [stroke] {
+    stroke: currentColor;
+}
+
+.tile-label {
+    font-size: var(--text-lg);
+    font-weight: 300;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text-dim);
+    text-align: center;
+    transition: color 0.2s var(--ease);
+}
+
+.tile.focused {
+    color: var(--text);
+}
+
+.tile.focused .tile-svg-slot {
+    transform: translateY(-1px);
+}
+
+.tile.focused .tile-svg {
+    color: var(--text);
+}
+
+.tile.focused .tile-label {
+    color: var(--text);
+}
+
+/* === [07] TABS ========================================================== */
+.tabs {
+    position: relative;
+    display: flex;
+    gap: 1px;
+    width: min(1080px, calc(100% - var(--space-2xl) * 2));
+    margin: auto auto auto;
+    border: 1px solid var(--border);
+    background: var(--border);
+    background-clip: padding-box;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.tab {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: var(--space-md) var(--space-xl);
+    background: var(--bg);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking-wider);
+    font-weight: 300;
+    color: var(--text-dim);
+    text-align: center;
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.tab.active {
+    background: var(--active);
+    color: var(--text);
+}
+
+.subtab-content {
+    display: none;
+}
+
+.subtab-content.active {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: auto;
+}
+
+/* === [08] PLAYER ======================================================== */
+.player {
+    --player-width: clamp(520px, 20vw, 640px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+}
+
+.player-cover {
+    width: var(--player-width);
+    height: clamp(270px, 20vw, 330px);
+    aspect-ratio: 1;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    font-size: var(--text-lg);
+    letter-spacing: var(--tracking-wide);
+}
+
+.cover-art {
+    color: var(--text);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wider);
+}
+
+.player-track-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+
+.player-track {
+    max-width: min(640px, 100%);
+    font-size: var(--text-base);
+    color: var(--text);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    text-align: center;
+}
+
+.scrubber {
+    width: var(--player-width);
+    height: 8px;
+    background: var(--border);
+    position: relative;
+    transition: background 0.2s var(--ease);
+}
+
+.scrubber.selected {
+    background: var(--text-dim);
+}
+
+.scrubber-group {
+    position: relative;
+    width: var(--player-width);
+}
+
+.scrubber-group .scrubber {
+    width: 100%;
+}
+
+.scrubber-times {
+    position: absolute;
+    top: calc(6px + var(--space-xs));
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    letter-spacing: var(--tracking-base);
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+    pointer-events: none;
+}
+
+.scrubber.selected+.scrubber-times {
+    opacity: 1;
+}
+
+.scrubber-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 35%;
+    background: var(--text);
+    transition: width 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    width: 100%;
+}
+
+.control {
+    --control-icon-size: 1.3rem;
+
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--text);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.control-icon {
+    --ui-icon-size: var(--control-icon-size);
+}
+
+.control-icon-pause,
+.control-icon-repeat-one {
+    display: none;
+}
+
+.control.active .control-icon-play {
+    display: none;
+}
+
+.control.active .control-icon-pause {
+    display: block;
+}
+
+.control[data-mode="one"] .control-icon-repeat {
+    display: none;
+}
+
+.control[data-mode="one"] .control-icon-repeat-one {
+    display: block;
+}
+
+.control.active {
+    color: var(--text-dim);
+}
+
+
+/* === [09] CONTAINER ===================================================== */
+.content-container {
+    width: min(1080px, calc(100% - var(--space-2xl) * 2));
+    height: var(--container-height);
+    overflow-y: hidden;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.view>.content-container {
+    margin-bottom: auto;
+}
+
+.content-container.is-list {
+    padding: 0;
+    position: relative;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-container.is-list::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 1px;
+    left: 0;
+    height: 1px;
+    background: var(--bg);
+    pointer-events: none;
+}
+
+.control-container {
+    width: var(--player-width);
+    padding: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
+
+/* === [10] LIST ========================================================== */
+.track-list {
+    list-style: none;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.track-list::-webkit-scrollbar {
+    display: none;
+}
+
+.track {
+    height: var(--track-height);
+    display: grid;
+    grid-template-columns: 60px 1fr auto 60px;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-md);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.track-index {
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-tight);
+}
+
+.track-time {
+    color: var(--text-dim);
+    text-align: right;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.track-playing-indicator {
+    width: 20px;
+    text-align: center;
+    justify-self: center;
+    color: var(--text);
+    font-size: var(--text-base);
+}
+
+.track.playing .track-playing-indicator::after {
+    content: '♪';
+}
+
+[data-view="radiolist"] .track-playing-indicator {
+    grid-column: 4;
+}
+
+.phone-list {
+    list-style: none;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.phone-list::-webkit-scrollbar {
+    display: none;
+}
+
+.row {
+    height: var(--track-height);
+    display: grid;
+    grid-template-columns: 1fr 7em 5.5em;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-md);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.row-day {
+    text-align: right;
+    color: var(--text-dim);
+}
+
+.row-time {
+    text-align: right;
+    color: var(--text-dim);
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.navigation-favorites-list {
+    list-style: none;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.navigation-favorites-list::-webkit-scrollbar {
+    display: none;
+}
+
+.navigation-favorite-row {
+    height: var(--track-height);
+    display: grid;
+    grid-template-columns: 1fr 7em 5.5em;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-md);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text);
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.navigation-favorite-type {
+    text-align: right;
+    color: var(--text-dim);
+}
+
+.navigation-favorite-distance {
+    text-align: right;
+    color: var(--text-dim);
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+/* === [11] WEATHER ======================================================= */
+.content-container.is-weather {
+    padding: 0;
+    position: relative;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-container.is-weather::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 1px;
+    left: 0;
+    height: 1px;
+    background: var(--bg);
+    pointer-events: none;
+}
+
+.weather-current {
+    min-height: calc(var(--track-height) * 2.25);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr auto;
+    gap: var(--space-xs) var(--space-lg);
+    align-items: end;
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.weather-location {
+    align-self: start;
+    color: var(--text-dim);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.weather-temp {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    color: var(--text);
+    font-size: clamp(4rem, 7vw, 6rem);
+    font-weight: 200;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+}
+
+.weather-condition {
+    color: var(--text);
+    font-size: var(--text-xl);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.weather-metrics,
+.weather-month-grid {
+    flex: 0 0 var(--track-height);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+}
+
+.weather-metric {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    border-right: 1px solid var(--border);
+}
+
+.weather-metric:last-child {
+    border-right: none;
+}
+
+.weather-metric-label {
+    color: var(--text-dim);
+    font-size: var(--text-sm);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.weather-metric-value {
+    color: var(--text);
+    font-size: var(--text-xl);
+    font-weight: 300;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.weather-list {
+    list-style: none;
+    width: 100%;
+}
+
+.weather-list-stretch,
+.weather-list-month,
+.weather-list-full {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.weather-list-full {
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.weather-list-full::-webkit-scrollbar {
+    display: none;
+}
+
+.weather-row {
+    height: var(--track-height);
+    display: grid;
+    grid-template-columns: 1fr 9em 7em;
+    gap: var(--space-md);
+    align-items: center;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.weather-list-stretch .weather-row {
+    flex: 1;
+    height: auto;
+}
+
+.weather-list-month .weather-row,
+.weather-list-full .weather-row {
+    flex: 1;
+    height: auto;
+    min-height: var(--track-height);
+}
+
+.weather-list-full .weather-row {
+    grid-template-columns: 1fr 7em 8em 7em;
+}
+
+.weather-row-meta {
+    color: var(--text-dim);
+    text-align: right;
+}
+
+.weather-row-detail {
+    color: var(--text-dim);
+    text-align: right;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.weather-row-value {
+    color: var(--text);
+    text-align: right;
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+/* === [12] CALL ========================================================== */
+.content-container.is-call {
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+}
+
+.call-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl);
+    border-bottom: 1px solid var(--border);
+}
+
+.call-avatar {
+    width: calc(var(--track-height) * 1.75);
+    height: calc(var(--track-height) * 1.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text);
+}
+
+.call-avatar-icon {
+    --ui-icon-size: var(--text-2xl);
+}
+
+.call-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+}
+
+.call-status {
+    color: var(--text-dim);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.call-name {
+    max-width: min(720px, 100%);
+    color: var(--text);
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.call-actions {
+    height: calc(var(--track-height) * 1.5);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    flex-shrink: 0;
+}
+
+.call-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.call-action:last-child {
+    border-right: none;
+}
+
+.call-action-icon {
+    --ui-icon-size: var(--text-2xl);
+}
+
+/* mute button: swap mic icons based on .is-muted */
+.call-action[data-action="mute"] .mute-off {
+    display: none;
+}
+
+.call-action[data-action="mute"].is-muted .mute-on {
+    display: none;
+}
+
+.call-action[data-action="mute"].is-muted .mute-off {
+    display: block;
+}
+
+.call-action-end {
+    color: #b42d2d;
+}
+
+/* === [13] CONTENT PLACEHOLDER =========================================== */
+.content-placeholder {
+    flex: 1;
+    display: flex;
+    font-weight: 300;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: var(--text-base);
+    letter-spacing: var(--tracking-tight);
+}
+
+/* === [14] MAP =========================================================== */
+.content-container.is-map {
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+.map-canvas {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0a0a0a;
+    cursor: grab;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-canvas::-webkit-scrollbar {
+    display: none;
+}
+
+.map-tile {
+    display: block;
+    flex-shrink: 0;
+    transform-origin: center center;
+}
+
+.navigation-route-layer {
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+}
+
+.content-container.is-map.route-active .navigation-route-layer {
+    opacity: 1;
+}
+
+.current-location-marker {
+    color: var(--text);
+}
+
+.navigation-route-card {
+    position: absolute;
+    right: var(--space-lg);
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    min-height: var(--track-height);
+    display: grid;
+    grid-template-columns: 1fr minmax(calc(var(--track-height) * 2.5), auto);
+    align-items: stretch;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease);
+}
+
+.view.active .content-container.is-map.has-route .navigation-route-card {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.navigation-route-actions {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    border-right: 1px solid var(--border);
+}
+
+.navigation-route-card.focused .navigation-route-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.navigation-route-card.expanded .navigation-route-copy {
+    display: none;
+}
+
+.navigation-route-card.expanded .navigation-route-actions {
+    display: grid;
+}
+
+.route-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-wide);
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    transition: background 0.2s var(--ease);
+}
+
+.route-action:last-child {
+    border-right: none;
+}
+
+.navigation-route-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-md) var(--space-lg);
+    border-right: 1px solid var(--border);
+}
+
+.navigation-route-destination {
+    color: var(--text);
+    font-size: var(--text-lg);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navigation-route-meta {
+    color: var(--text-dim);
+    font-size: var(--text-sm);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+}
+
+.navigation-route-direction {
+    min-width: calc(var(--track-height) * 2.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    background: var(--bg);
+    transition: color 0.2s var(--ease);
+}
+
+.route-direction-icon {
+    --ui-icon-size: var(--text-2xl);
+}
+
+.content-container.is-map.route-loading .navigation-route-direction {
+    color: var(--text-dim);
+}
+
+/* === [15] KEYBOARD (ADDRESS INPUT) ====================================== */
+.content-container.is-keyboard {
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+}
+
+.address-display {
+    height: calc(var(--track-height) * 1.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    color: var(--text-dim);
+    letter-spacing: var(--tracking-base);
+    flex-shrink: 0;
+    padding: 0 var(--space-lg);
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.keyboard {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr)) calc(var(--track-height) * 1.5);
+}
+
+.key {
+    background: var(--bg);
+    color: var(--text);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
+
+.address-search {
+    height: auto;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-wider);
+}
+
+.keyboard-search {
+    grid-column: 3 / 8;
+}
+
+.keyboard-space {
+    grid-column: 8;
+}
+
+.keyboard-back {
+    grid-column: 9;
+}
+
+.key-icon {
+    --ui-icon-size: var(--text-xl);
+}
+
+/* === [16] DIALPAD ======================================================= */
+.content-container.is-dial {
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+}
+
+.dial-display {
+    height: calc(var(--track-height) * 1.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    color: var(--text-dim);
+    letter-spacing: var(--tracking-base);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.dialpad {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+}
+
+.dialpad-key {
+    background: var(--bg);
+    color: var(--text);
+    font-size: var(--text-xl);
+    border: 1px solid var(--border);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dial-call {
+    height: calc(var(--track-height) * 1.5);
+    color: #45AF5C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.dial-call-icon {
+    --ui-icon-size: var(--text-2xl);
+}

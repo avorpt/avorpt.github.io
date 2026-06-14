@@ -1,0 +1,1700 @@
+/* ===========================================================================
+   AVOR — stylesheet
+   ------------------------------------------------------------------------
+   [01]  Self-hosted fonts
+   [02]  Base & tokens
+   [03]  Shared containers
+   [04]  Nav
+   [05]  Hero
+   [06]  Model hero
+   [07]  Hero cta
+   [08]  Sections
+   [09]  Models
+   [10]  Catalog
+   [11]  Listing
+   [12]  Service
+   [13]  Stats
+   [14]  Model features
+   [15]  World slider
+   [16]  Footer
+   [17]  Cookie policy page — prose scope
+   [18]  Keyframes
+   [19]  Responsive
+   [20]  Accessibility
+   ========================================================================
+   ======================================================================== */
+
+/* === [01] SELF-HOSTED FONTS ============================================= */
+@font-face {
+    font-family: 'Alexandria';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/assets/fonts/alexandria-variable.woff2') format('woff2');
+}
+
+/* === [02] BASE & TOKENS ================================================= */
+:root {
+    /* color */
+    --bg: #000000;
+    --bg-raised: #1a1a1a;
+
+    /* not used yet */
+    --red: #66292c; /* douro red */
+    --sand: #d8cab6; /* iberian sand */
+    --green: #718f7e; /* silent green */
+    --mist: #98afc7; /* mist blue */
+
+    --text: #f5f5f5;
+    --text-dim: #a8a8a8;
+
+    --border: #f5f5f53c;
+    --border-active: #a8a8a8;
+
+    /* font */
+    --font: 'Alexandria', 'Helvetica Neue', sans-serif;
+
+    /* spacing */
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    --space-4xl: 5rem;
+    --space-5xl: 6rem;
+    --space-6xl: 8rem;
+
+    /* type */
+    --text-xs: 0.74rem;
+    --text-sm: 0.85rem;
+    --text-base: 1rem;
+    --text-lg: 1.1rem;
+    --text-xl: 1.3rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 2rem;
+    --text-4xl: 2.5rem;
+
+    /* letter spacing */
+    --tracking-tight: 0.02em;
+    --tracking-base: 0.04em;
+    --tracking-wide: 0.08em;
+    --tracking-wider: 0.1em;
+    --tracking-ui: 0.16em;
+    --tracking-caps: 0.2em;
+
+    /* line height */
+    --leading-tight: 1;
+    --leading-snug: 1.1;
+    --leading-body: 1.7;
+
+    /* layout */
+    --site-frame: 1200px;
+    --content-wide: 1080px;
+    --content-focus: 980px;
+    --section-space: clamp(5rem, 7vw, 8rem);
+    --h-pad: max(4rem, calc((100vw - var(--site-frame)) / 2));
+    /* nav → first content. One gap for every page opener (model hero,
+       page intros), so all pages hang from the nav at the same distance. */
+    --page-top: clamp(var(--space-xl), 3.5vh, var(--space-2xl));
+
+    /* component sizing */
+    --nav-logo-size: 26px;
+    --nav-pad-top: var(--space-md);
+    --nav-pad-bottom: var(--space-sm);
+    --nav-trigger-size: 40px;
+    --nav-trigger-line-width: 20px;
+    --nav-trigger-line-gap: 10px;
+    --nav-height: calc(var(--nav-pad-top) + var(--nav-pad-bottom) + max(var(--nav-logo-size), var(--nav-trigger-size)));
+
+    --hero-cta-min-width: 13rem;
+
+    --overlay-inline: clamp(var(--space-md), 4vw, var(--space-2xl));
+    --title-body-gap: var(--space-md);
+
+    /* easing */
+    --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+    /* transitions */
+    --transition-color: color 0.3s var(--ease);
+    --transition-media: transform 0.6s var(--ease), filter 0.6s var(--ease);
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 400;
+    line-height: var(--leading-body);
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+::selection {
+    background: var(--text-dim);
+    color: var(--text);
+}
+
+:where(a, button):focus-visible {
+    outline: 1px solid var(--text-dim);
+    outline-offset: 4px;
+}
+
+/* === [03] SHARED CONTAINERS ============================================= */
+.section-inner {
+    width: min(100%, var(--content-wide));
+    margin-inline: auto;
+    text-align: center;
+}
+
+/* page shells that start under the absolute nav */
+.catalog-page,
+.service-page,
+.policy-page {
+    padding-top: var(--nav-height);
+}
+
+:where(.models-grid, .world-stage) {
+    width: min(100%, var(--content-focus));
+    margin-inline: auto;
+}
+
+:where(.search-controls, .search-grid, .listing-specs, .service-grid) {
+    width: min(100%, var(--content-wide));
+    margin-inline: auto;
+}
+
+/* === [04] NAV =========================================================== */
+.nav {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    background: var(--bg);
+}
+
+.nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-out);
+}
+
+body.menu-open .nav-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.nav-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: var(--nav-pad-top) var(--h-pad) var(--nav-pad-bottom);
+}
+
+.nav-logo {
+    grid-column: 2;
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-logo-img {
+    height: var(--nav-logo-size);
+    width: auto;
+}
+
+.nav-trigger {
+    grid-column: 1;
+    justify-self: start;
+    width: var(--nav-trigger-size);
+    height: var(--nav-trigger-size);
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--nav-trigger-line-gap);
+}
+
+.nav-trigger span {
+    display: block;
+    width: var(--nav-trigger-line-width);
+    height: 1px;
+    pointer-events: none;
+    background: var(--text-dim);
+    transition:
+        background 0.2s var(--ease),
+        transform 0.2s var(--ease),
+        opacity 0.2s var(--ease);
+}
+
+.nav-trigger:hover span,
+.nav-trigger[aria-expanded="true"] span {
+    background: var(--text);
+}
+
+.nav-panel {
+    width: 100%;
+    padding-inline: var(--h-pad);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.78s var(--ease-out);
+}
+
+.nav.open .nav-panel {
+    grid-template-rows: 1fr;
+}
+
+.nav-panel-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.nav-menu {
+    width: 100%;
+    max-width: var(--site-frame);
+    padding: var(--space-lg) 0 var(--space-2xl);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(10rem, max-content));
+    justify-content: start;
+    gap: var(--space-3xl);
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 0.78s;
+}
+
+.nav.open .nav-menu {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+
+.nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.nav-category {
+    color: var(--text);
+    font-size: var(--text-base);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+}
+
+.nav-group>* {
+    opacity: 0;
+    transform: translateY(-0.6rem);
+    transition:
+        opacity 0.34s var(--ease-out) var(--stagger, 0s),
+        transform 0.56s var(--ease-out) var(--stagger, 0s);
+}
+
+.nav.open .nav-group>* {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* reveal stagger — set only while open, so closing snaps back undelayed */
+.nav.open .nav-group> :nth-child(1) { --stagger: 0.18s; }
+.nav.open .nav-group> :nth-child(2) { --stagger: 0.28s; }
+.nav.open .nav-group> :nth-child(3) { --stagger: 0.38s; }
+.nav.open .nav-group> :nth-child(4) { --stagger: 0.48s; }
+.nav.open .nav-group> :nth-child(5) { --stagger: 0.58s; }
+
+.nav-menu a {
+    color: var(--text-dim);
+    font-weight: 400;
+    font-size: var(--text-base);
+    transition:
+        opacity 0.3s var(--ease-out) var(--stagger, 0s),
+        transform 0.3s var(--ease-out) var(--stagger, 0s),
+        color 0.2s var(--ease);
+}
+
+.nav-menu a:hover,
+.nav-menu a:focus-visible {
+    color: var(--text);
+}
+
+/* === [05] HERO ========================================================== */
+.hero {
+    background-color: var(--bg);
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-inline: var(--h-pad);
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero-car {
+    position: relative;
+    width: min(90vw, var(--site-frame));
+    opacity: 0;
+    animation: carReveal 2s var(--ease-out) 1s forwards;
+}
+
+.hero-car img {
+    width: 100%;
+    height: auto;
+    filter: brightness(0);
+    animation: carLight 2s var(--ease-out) 0.2s forwards;
+}
+
+/* === [06] MODEL HERO ==================================================== */
+.hero-model {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: "car" "copy";
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: start;
+    justify-items: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding-top: calc(var(--nav-height) + var(--page-top));
+    padding-bottom: var(--space-3xl);
+}
+
+.hero-model .hero-car {
+    grid-area: car;
+    width: 100%;
+    opacity: 1;
+    animation: none;
+}
+
+/* the car is height-budgeted: it may never spend more than the viewport
+   minus nav, opener gap and copy block (~13rem). One rule replaces the
+   old per-breakpoint width variants — sizing degrades continuously. */
+.hero-model .hero-car img {
+    filter: none;
+    animation: none;
+    width: auto;
+    max-width: 100%;
+    max-height: var(--hero-car-max-h, none);
+    margin-inline: auto;
+}
+
+.model-hero-copy-group {
+    grid-area: copy;
+    align-self: center;
+    position: relative;
+    width: min(100%, var(--content-wide));
+    text-align: center;
+}
+
+.model-hero-copy {
+    max-width: 30rem;
+    margin-top: var(--title-body-gap);
+    margin-inline: auto;
+    font-size: clamp(var(--text-base), 2.1vw, var(--text-xl));
+    font-weight: 300;
+    line-height: var(--leading-snug);
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.model-hero-link {
+    position: absolute;
+    top: calc(100% + var(--space-md));
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-wide);
+    transition: color 0.2s var(--ease);
+}
+
+.model-hero-link:hover,
+.model-hero-link:focus-visible {
+    color: var(--text);
+}
+
+/* === [07] HERO CTA ====================================================== */
+.hero-cta {
+    position: absolute;
+    left: var(--h-pad);
+    bottom: var(--space-3xl);
+    width: min(100%, var(--content-wide));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    opacity: 0;
+    animation: fadeIn 0.8s var(--ease-out) 3s forwards;
+}
+
+.hero-cta-label {
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-snug);
+    color: var(--text);
+}
+
+/* Shared ghost button: bordered, uppercase, dim → bright on hover.
+   Used by .hero-cta-link, .service-flow a/button and .world-arrow;
+   the per-element rules in [12]/[15] only set size/weight/tracking deltas.
+   (.service-flow button is intentionally left out of the hover rule.) */
+.hero-cta-link,
+.service-flow a,
+.service-flow button,
+.world-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+:is(.hero-cta-link, .service-flow a, .world-arrow):is(:hover, :focus-visible) {
+    color: var(--text);
+    border-color: var(--border-active);
+}
+
+.hero-cta-link {
+    min-width: var(--hero-cta-min-width);
+    font-size: var(--text-base);
+    font-weight: 400;
+    letter-spacing: var(--tracking-caps);
+}
+
+/* === [08] SECTIONS ====================================================== */
+/* one box rule for every section: vertical rhythm is symmetric by
+   construction. Tighter sections override --section-space; the few genuinely
+   asymmetric ones override a single padding side and say why. */
+.section {
+    padding: var(--section-space) var(--h-pad);
+    position: relative;
+}
+
+/* page openers: a section that leads its page (or wrapper) sits at
+   --page-top under the nav, like the model heroes — not at full
+   section rhythm. Structural, so no per-page class needed. */
+.section:first-child {
+    padding-top: var(--page-top);
+}
+
+/* dividers exist only between blocks, never above a page's first one */
+.section:not(:first-child)::before,
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--h-pad);
+    right: var(--h-pad);
+    height: 1px;
+    background: var(--border);
+}
+
+/* When the inner is a label/intro wrapper followed by sibling content (home
+   model grid, model features), add the label→content gap. When the inner IS
+   the whole content (service copy, intros), it's the last child and gets no
+   extra bottom — so .section's own padding keeps top/bottom symmetric. */
+.section-inner:not(:last-child) {
+    margin-bottom: var(--space-xl);
+}
+
+.section-body {
+    font-size: var(--text-lg);
+    font-weight: 300;
+    color: var(--text);
+    line-height: var(--leading-body);
+    letter-spacing: var(--tracking-tight);
+}
+
+.section-label {
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wider);
+    line-height: var(--leading-snug);
+    color: var(--text-dim);
+}
+
+.page-label {
+    font-size: clamp(var(--text-3xl), 4vw, var(--text-4xl));
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-snug);
+    color: var(--text);
+}
+
+/* === [09] MODELS ======================================================== */
+.models-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(var(--space-xl), 5vw, var(--space-3xl));
+}
+
+.model-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+}
+
+.model-card img,
+.search-card img {
+    width: 100%;
+    height: auto;
+    filter: brightness(0.9);
+    transition: var(--transition-media);
+}
+
+/* model cards are always links; only linked search cards get the hover */
+a:is(.model-card, .search-card):is(:hover, :focus-visible) img {
+    transform: scale(1.01);
+    filter: brightness(1);
+}
+
+/* image-overlay text — shared with the world slider in [15] */
+.model-name,
+.model-tag,
+.world-title,
+.world-caption {
+    position: absolute;
+    left: var(--overlay-inline);
+    line-height: var(--leading-tight);
+}
+
+.model-name,
+.world-title {
+    bottom: clamp(var(--space-md), 7vw, var(--space-2xl));
+    font-size: clamp(var(--text-base), 2.4vw, var(--text-3xl));
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    color: var(--text);
+}
+
+.model-tag,
+.world-caption {
+    bottom: clamp(var(--space-2xs), 4vw, var(--space-lg));
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text-dim);
+}
+
+.model-tag {
+    font-size: clamp(var(--text-sm), 2.4vw, var(--text-base));
+}
+
+/* === [10] CATALOG ======================================================= */
+/* asymmetric on purpose: intro + filters sit closer to the results below */
+.catalog-intro {
+    padding-bottom: var(--space-3xl);
+}
+
+.page-intro .section-body {
+    max-width: 42rem;
+    margin-top: var(--title-body-gap);
+    margin-inline: auto;
+    font-size: clamp(var(--text-base), 2.1vw, var(--text-xl));
+    line-height: var(--leading-snug);
+    color: var(--text-dim);
+}
+
+.search-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1px;
+    background: transparent;
+}
+
+.search-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    background: var(--bg);
+    padding: var(--space-xl);
+    position: relative;
+}
+
+.search-control>span {
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: var(--tracking-ui);
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.filter-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-base);
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-wider);
+    padding: 0 0 var(--space-xs);
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.filter-clear {
+    font-size: var(--text-base);
+    line-height: 1;
+    color: var(--text-dim);
+}
+
+.filter-trigger:hover,
+.filter-trigger[aria-expanded="true"] {
+    color: var(--text);
+    border-color: var(--border-active);
+}
+
+.filter-options {
+    position: absolute;
+    top: calc(100% - var(--space-md));
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: grid;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-xl) var(--space-xl);
+    background: var(--bg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-0.4rem);
+    transition:
+        opacity 0.24s var(--ease-out),
+        transform 0.24s var(--ease-out),
+        visibility 0s linear 0.24s;
+}
+
+.filter-field.open .filter-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition-delay: 0s;
+}
+
+.filter-options button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--text-dim);
+    font: inherit;
+    font-size: var(--text-base);
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-wider);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+}
+
+.filter-options button:hover,
+.filter-options button:focus-visible,
+.filter-options button[aria-pressed="true"] {
+    color: var(--text);
+}
+
+.search-results {
+    --section-space: var(--space-3xl);
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(var(--space-xl), 4vw, var(--space-3xl));
+}
+
+.search-card {
+    display: grid;
+    align-content: start;
+    row-gap: var(--space-xs);
+    padding-bottom: var(--space-md);
+    cursor: default;
+}
+
+a.search-card {
+    cursor: pointer;
+}
+
+.search-card[hidden] {
+    display: none;
+}
+
+/* base image + hover styles shared with .model-card in [09] */
+.search-card img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.search-title {
+    margin-top: var(--title-body-gap);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    line-height: var(--leading-tight);
+    color: var(--text);
+}
+
+.search-meta {
+    font-size: var(--text-sm);
+    font-weight: 300;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-base);
+    color: var(--text-dim);
+}
+
+.search-empty {
+    margin-top: var(--space-xl);
+    text-align: center;
+    font-size: var(--text-base);
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text-dim);
+}
+
+/* === [11] LISTING ======================================================= */
+.listing-spec-row {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.28fr) minmax(0, 0.72fr);
+    gap: clamp(var(--space-xl), 6vw, var(--space-5xl));
+    padding-block: var(--space-lg);
+}
+
+.listing-extra-specs[hidden] {
+    display: none;
+}
+
+.listing-spec-row span {
+    font-size: var(--text-base);
+    font-weight: 400;
+    letter-spacing: var(--tracking-ui);
+    color: var(--text);
+}
+
+.listing-spec-row p {
+    font-size: var(--text-base);
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: var(--tracking-base);
+    color: var(--text-dim);
+}
+
+.listing-more {
+    display: block;
+    width: fit-content;
+    margin: var(--space-xl) auto 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-dim);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: var(--tracking-ui);
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-color);
+}
+
+.listing-more:hover,
+.listing-more:focus-visible {
+    color: var(--text);
+}
+
+/* === [12] SERVICE ======================================================= */
+/* asymmetric on purpose: intro hugs the philosophy block below it */
+.service-overview .page-intro {
+    padding-bottom: var(--space-xl);
+}
+
+.service-grid {
+    margin-top: var(--space-lg);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(var(--space-xl), 4vw, var(--space-3xl));
+}
+
+.service-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.service-copy h2 {
+    font-size: clamp(var(--text-xl), 2.4vw, var(--text-3xl));
+    font-weight: 500;
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-wide);
+    color: var(--text);
+}
+
+.service-copy-lead {
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-wide);
+    color: var(--text);
+}
+
+.service-copy h2 + .service-copy-lead,
+.service-copy h2 + .service-copy-body,
+.service-copy-body + .service-copy-lead {
+    margin-top: var(--space-lg);
+}
+
+.service-copy-lead + .service-copy-body {
+    margin-top: var(--space-md);
+}
+
+.service-copy-body {
+    margin-inline: auto;
+    max-width: 36rem;
+    font-size: var(--text-lg);
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-dim);
+}
+
+.service-philosophy .service-copy-body {
+    max-width: 55rem;
+}
+
+.service-flow {
+    width: min(100%, 32rem);
+    margin-inline: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.service-request .service-flow {
+    margin-top: var(--space-lg);
+}
+
+.service-flow a,
+.service-flow button {
+    min-width: var(--hero-cta-min-width);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 300;
+    letter-spacing: var(--tracking-ui);
+}
+
+/* === [13] STATS ========================================================= */
+.stats-grid {
+    width: min(100%, var(--site-frame));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+}
+
+.stats-cell {
+    background: var(--bg);
+    padding: var(--space-2xl) var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+}
+
+.stats-cell h3 {
+    font-size: var(--text-lg);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text);
+}
+
+.stats-cell p {
+    font-size: var(--text-base);
+    font-weight: 300;
+    line-height: var(--leading-body);
+    color: var(--text-dim);
+}
+
+/* === [14] MODEL FEATURES ================================================ */
+.model-feature,
+.model-feature.reverse {
+    width: min(100%, var(--content-wide));
+    display: grid;
+    gap: clamp(var(--space-xl), 6vw, var(--space-4xl));
+    align-items: center;
+}
+
+.model-feature {
+    grid-template-columns: minmax(0, 1fr) minmax(24ch, 0.4fr);
+    margin-left: 0;
+    margin-right: auto;
+}
+
+.model-feature.reverse {
+    grid-template-columns: minmax(24ch, 0.4fr) minmax(0, 1fr);
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.model-feature+.model-feature {
+    margin-top: clamp(var(--space-4xl), 10vw, var(--space-6xl));
+}
+
+.model-feature.reverse .model-feature-img {
+    order: 2;
+}
+
+.model-feature.reverse .model-feature-text {
+    order: 1;
+    justify-self: start;
+}
+
+.model-feature-img,
+.model-feature-text {
+    min-width: 0;
+}
+
+.model-feature-img {
+    aspect-ratio: 4 / 5;
+    /* 64svh width = 80svh height at 4:5 — the portrait shots never take
+       more than ~80% of a short viewport (landscape phones, split screens) */
+    width: min(100%, 31rem, 64svh);
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.model-feature.reverse .model-feature-img {
+    justify-self: end;
+}
+
+.model-feature-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.model-feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-width: 50ch;
+    justify-self: end;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.model-feature-text h3 {
+    font-size: clamp(var(--text-3xl), 3.2vw, var(--text-4xl));
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    color: var(--text);
+}
+
+.model-feature-text p {
+    font-size: clamp(var(--text-sm), 3.2vw, var(--text-base));
+    font-weight: 300;
+    letter-spacing: var(--tracking-base);
+    color: var(--text-dim);
+}
+
+/* === [15] WORLD SLIDER ================================================== */
+.world-stage {
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.world-slide {
+    display: none;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.world-slide.is-active {
+    display: block;
+}
+
+.world-slide img {
+    width: 100%;
+    height: auto;
+}
+
+.world-slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.72) 0%,
+            rgba(0, 0, 0, 0.12) 42%,
+            transparent 70%);
+    pointer-events: none;
+}
+
+/* position + typography shared with the model cards — see [09].
+   z-index lifts the text above the ::after gradient. */
+.world-title,
+.world-caption {
+    z-index: 1;
+}
+
+.world-caption {
+    max-width: 28ch;
+    font-size: clamp(var(--text-sm), 1.2vw, var(--text-base));
+}
+
+.world-controls {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    margin: var(--space-lg) auto 0;
+}
+
+.world-count {
+    min-width: var(--space-3xl);
+    text-align: center;
+    font-size: var(--text-xs);
+    font-weight: 300;
+    letter-spacing: var(--tracking-ui);
+    color: var(--text-dim);
+}
+
+.world-arrow {
+    min-width: var(--space-4xl);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 300;
+    letter-spacing: var(--tracking-ui);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* === [16] FOOTER ======================================================== */
+.footer {
+    padding: var(--space-5xl) var(--h-pad);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-copy {
+    align-self: center;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text-dim);
+}
+
+.footer-cookie,
+.footer-policy {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    text-decoration: underline;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text-dim);
+    transition: var(--transition-color);
+}
+
+/* button reset so the cookie trigger reads like its sibling link */
+.footer-cookie {
+    text-align: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+    margin: var(--space-2xl) 0 var(--space-lg);
+}
+
+.footer-link {
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: var(--tracking-wider);
+    color: var(--text);
+}
+
+.footer-legal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-lg);
+}
+
+:is(.footer-cookie, .footer-policy):is(:hover, :focus-visible) {
+    color: var(--text);
+}
+
+.footer-top {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    color: var(--text-dim);
+    transition: var(--transition-color);
+}
+
+.footer-top::before {
+    content: '\2191';
+    display: block;
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    line-height: 1;
+    translate: 0 2px;
+    transition: translate 0.3s var(--ease);
+}
+
+.footer-top:hover,
+.footer-top:focus-visible {
+    color: var(--text);
+}
+
+.footer-top:hover::before,
+.footer-top:focus-visible::before {
+    translate: 0 -2px;
+}
+
+/* === [17] COOKIE POLICY PAGE — PROSE SCOPE ============================== */
+.policy {
+    max-width: var(--content-focus);
+}
+
+.policy-heading {
+    font-size: var(--text-base);
+    font-weight: 700;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text);
+    margin-top: var(--space-3xl);
+    margin-bottom: var(--space-sm);
+}
+
+.policy-heading:first-child {
+    margin-top: 0;
+}
+
+.policy p {
+    font-size: var(--text-base);
+    font-weight: 300;
+    line-height: var(--leading-body);
+    color: var(--text-dim);
+}
+
+.policy p+p {
+    margin-top: var(--space-sm);
+}
+
+.policy strong {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.policy a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* === [18] KEYFRAMES ===================================================== */
+@keyframes carReveal {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes carLight {
+    0% {
+        filter: brightness(0);
+    }
+
+    60% {
+        filter: brightness(0);
+    }
+
+    100% {
+        filter: brightness(0.254);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* === [19] RESPONSIVE ==================================================== */
+/* model hero */
+@media (min-height: 600px) {
+    .hero-model {
+        --hero-car-max-h: calc(100svh - var(--nav-height) - var(--page-top) - 13rem);
+    }
+}
+
+@media (max-width: 1100px) and (orientation: portrait), (max-width: 640px) {
+    .hero-model {
+        grid-template-rows: auto auto;
+        align-content: start;
+        min-height: auto;
+        gap: var(--space-xl);
+        padding-bottom: var(--space-2xl);
+    }
+
+    /* in flow, not absolute: the link must add to the hero's height here,
+       or it lands on the divider of the section below */
+    .hero-model .model-hero-link {
+        position: static;
+        display: inline-block;
+        margin-top: var(--space-lg);
+        transform: none;
+    }
+
+    /* full-bleed environmental image */
+    .hero-model .hero-car {
+        width: calc(100% + 2 * var(--h-pad));
+        margin-inline: calc(-1 * var(--h-pad));
+    }
+
+    .hero-model .hero-car img {
+        width: 100%;
+        max-height: none;
+    }
+}
+
+/* short landscape */
+@media (min-width: 641px) and (max-height: 599px) and (orientation: landscape) {
+    :root {
+        --section-space: var(--space-2xl);
+        --hero-cta-min-width: 10rem;
+        --overlay-inline: var(--space-md);
+    }
+
+    .model-card,
+    .world-stage {
+        width: min(100%, 117svh);
+    }
+
+    .hero:not(.hero-model) .hero-car {
+        width: min(90vw, 105svh);
+    }
+
+    .hero:not(.hero-model) .hero-car img {
+        transform: scale(1.5);
+    }
+
+    .hero-model {
+        grid-template-columns: minmax(18rem, 0.5fr) minmax(0, 0.5fr);
+        grid-template-areas: "copy car";
+        grid-template-rows: minmax(0, 1fr);
+        align-items: center;
+    }
+
+    .model-name,
+    .model-tag,
+    .world-title,
+    .world-caption {
+        max-width: calc(100% - (2 * var(--overlay-inline)));
+    }
+
+    .model-name,
+    .world-title {
+        bottom: calc(var(--space-md) + 1rem);
+        font-size: var(--text-base);
+    }
+
+    .model-tag,
+    .world-caption {
+        bottom: var(--space-md);
+    }
+
+    .model-tag,
+    .world-caption {
+        font-size: var(--text-sm);
+    }
+
+    .hero-cta-label {
+        font-size: var(--text-2xl);
+    }
+
+    .nav-menu {
+        grid-template-columns: repeat(2, minmax(8rem, max-content));
+        column-gap: var(--space-4xl);
+        row-gap: 0;
+        padding: var(--space-xs) 0 var(--space-lg);
+    }
+
+    .nav-group {
+        gap: var(--space-xs);
+    }
+
+    .nav-category {
+        font-size: var(--text-sm);
+        margin-bottom: 0;
+    }
+
+    .nav-menu a {
+        font-size: var(--text-sm);
+    }
+}
+
+/* stacked content layouts */
+@media (max-width: 1100px) and (orientation: portrait), (max-width: 640px) {
+    .search-controls,
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* stats grids only exist inside hero summaries — collapse them all here */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-xs);
+        background: transparent;
+    }
+
+    .stats-cell {
+        padding: var(--space-xs) var(--space-md);
+    }
+
+    .listing-spec-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+        justify-items: center;
+        padding-block: var(--space-md);
+        text-align: center;
+    }
+
+    .listing-spec-row p {
+        max-width: 28rem;
+    }
+
+    .listing-spec-row span {
+        font-size: var(--text-lg);
+    }
+
+    .listing-details .listing-specs {
+        width: min(100%, 30rem);
+    }
+
+    .service-grid {
+        width: min(100%, 30rem);
+        grid-template-columns: 1fr;
+    }
+
+    .service-card {
+        align-items: center;
+        text-align: center;
+    }
+
+    .model-feature,
+    .model-feature.reverse {
+        width: min(100%, 30rem);
+        margin-inline: auto;
+        grid-template-columns: 1fr;
+        gap: var(--space-xl);
+    }
+
+    .model-feature .model-feature-img,
+    .model-feature.reverse .model-feature-img {
+        order: 1;
+        justify-self: center;
+    }
+
+    .model-feature .model-feature-text,
+    .model-feature.reverse .model-feature-text {
+        order: 2;
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+    }
+}
+
+
+@media (max-width: 900px) {
+    :root {
+        --nav-trigger-line-width: 24px;
+    }
+
+    .hero:not(.hero-model) {
+        height: 100svh;
+        min-height: 100svh;
+    }
+
+    .nav-menu {
+        grid-template-columns: 1fr;
+        row-gap: var(--space-lg);
+    }
+
+    .hero-car {
+        width: 110vw;
+        /* intentional viewport bleed — safe only with body{overflow-x:hidden} */
+        max-width: none;
+    }
+
+    .section-label {
+        font-size: var(--text-xl);
+    }
+
+    .page-label {
+        font-size: var(--text-3xl);
+    }
+
+}
+
+@media (max-width: 640px) {
+    :root {
+        --h-pad: var(--space-lg);
+        --section-space: var(--space-4xl);
+        --nav-logo-size: 18px;
+        --nav-trigger-size: 34px;
+        --nav-trigger-line-width: 22px;
+        --hero-cta-min-width: 10rem;
+        --overlay-inline: var(--space-md);
+    }
+
+    .nav-menu {
+        padding: var(--space-md) 0 var(--space-xl);
+    }
+
+    .nav-group {
+        gap: var(--space-xs);
+    }
+
+    .nav-category {
+        font-size: var(--text-sm);
+        margin-bottom: var(--space-2xs);
+    }
+
+    .hero-cta {
+        bottom: var(--space-2xl);
+        gap: var(--space-xs);
+    }
+
+    .hero-cta-label {
+        font-size: var(--text-2xl);
+    }
+
+    .hero-cta-link {
+        font-size: var(--text-sm);
+        padding: var(--space-2xs) var(--space-xs);
+    }
+
+    .service-overview {
+        min-height: calc(100vh - var(--nav-height));
+        min-height: calc(100svh - var(--nav-height));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .catalog-intro {
+        padding-bottom: var(--space-xl);
+    }
+
+    .search-control {
+        padding: var(--space-lg);
+    }
+
+    /* asymmetric on purpose: results hug the filters above */
+    .search-results {
+        padding-top: var(--space-xl);
+    }
+
+    .search-title {
+        font-size: var(--text-base);
+    }
+
+    .page-intro .section-body {
+        font-size: var(--text-lg);
+        line-height: 1.45;
+    }
+
+    .service-copy h2,
+    .service-copy-lead {
+        font-size: var(--text-xl);
+    }
+
+    .service-request .service-flow {
+        margin-top: var(--space-md);
+    }
+
+    /* summary rides closer to the hero on phones — tighter rhythm, still
+       symmetric. Stats collapse is inherited from the 1100 block. */
+    .hero-summary {
+        --section-space: var(--space-2xl);
+    }
+
+    .models-grid {
+        gap: var(--space-xl);
+    }
+
+    .model-name,
+    .model-tag,
+    .world-title,
+    .world-caption {
+        max-width: calc(100% - (2 * var(--overlay-inline)));
+    }
+
+    .model-name,
+    .world-title {
+        bottom: calc(var(--space-md) + 1.2rem);
+        font-size: var(--text-base);
+    }
+
+    .model-tag,
+    .world-caption {
+        bottom: var(--space-md);
+    }
+
+    .model-tag {
+        font-size: var(--text-sm);
+    }
+
+    .world-caption {
+        font-size: 0.8rem;
+    }
+
+    .model-feature,
+    .model-feature.reverse {
+        width: min(100%, 20rem);
+        gap: var(--space-lg);
+    }
+
+    .world-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .footer-links {
+        display: grid;
+        grid-template-columns: repeat(6, max-content);
+        justify-content: center;
+        column-gap: var(--space-md);
+        row-gap: var(--space-sm);
+    }
+
+    .footer-link {
+        grid-column: span 2;
+        text-align: center;
+    }
+
+    .footer-link:nth-child(4) {
+        grid-column: 2 / span 2;
+    }
+
+    .footer-link:nth-child(5) {
+        grid-column: 4 / span 2;
+    }
+
+    .footer-copy {
+        font-size: var(--text-xs);
+    }
+
+    .footer-top {
+        font-size: var(--text-xs);
+    }
+}
+
+/* === [20] ACCESSIBILITY ================================================= */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+    }
+}

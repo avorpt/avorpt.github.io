@@ -1,0 +1,13 @@
+.vscode/
+.zed/
+.DS_Store
+.aider*
+.claude/
+assets/_originals/
+scripts/
+
+# dependencies / env / build / logs
+node_modules/
+.env
+.env.*
+*.log

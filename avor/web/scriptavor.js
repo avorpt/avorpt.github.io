@@ -1,12 +1,12 @@
-// slider
-const worldSlider = document.querySelector(".world");
+// ownership slider
+const ownershipSlider = document.querySelector(".ownership");
 
-if (worldSlider) {
-  const slides = [...worldSlider.querySelectorAll(".world-slide")];
-  const prevBtn = worldSlider.querySelector(".world-arrow.prev");
-  const nextBtn = worldSlider.querySelector(".world-arrow.next");
-  const currentEl = worldSlider.querySelector(".world-current");
-  const totalEl = worldSlider.querySelector(".world-total");
+if (ownershipSlider) {
+  const slides = [...ownershipSlider.querySelectorAll(".ownership-slide")];
+  const prevBtn = ownershipSlider.querySelector(".ownership-arrow.prev");
+  const nextBtn = ownershipSlider.querySelector(".ownership-arrow.next");
+  const currentEl = ownershipSlider.querySelector(".ownership-current");
+  const totalEl = ownershipSlider.querySelector(".ownership-total");
 
   if (slides.length > 0 && prevBtn && nextBtn && currentEl && totalEl) {
     let currentIndex = 0;

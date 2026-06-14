@@ -15,7 +15,7 @@
    [12]  Service
    [13]  Stats
    [14]  Model features
-   [15]  World slider
+   [15]  Ownership slider
    [16]  Footer
    [17]  Cookie policy page — prose scope
    [18]  Keyframes
@@ -191,7 +191,7 @@ img {
     padding-top: var(--nav-height);
 }
 
-:where(.models-grid, .world-stage) {
+:where(.models-grid, .ownership-stage) {
     width: min(100%, var(--content-focus));
     margin-inline: auto;
 }
@@ -484,13 +484,13 @@ body.menu-open .nav-backdrop {
 }
 
 /* Shared ghost button: bordered, uppercase, dim → bright on hover.
-   Used by .hero-cta-link, .service-flow a/button and .world-arrow;
+   Used by .hero-cta-link, .service-flow a/button and .ownership-arrow;
    the per-element rules in [12]/[15] only set size/weight/tracking deltas.
    (.service-flow button is intentionally left out of the hover rule.) */
 .hero-cta-link,
 .service-flow a,
 .service-flow button,
-.world-arrow {
+.ownership-arrow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -504,7 +504,7 @@ body.menu-open .nav-backdrop {
     transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 
-:is(.hero-cta-link, .service-flow a, .world-arrow):is(:hover, :focus-visible) {
+:is(.hero-cta-link, .service-flow a, .ownership-arrow):is(:hover, :focus-visible) {
     color: var(--text);
     border-color: var(--border-active);
 }
@@ -605,18 +605,18 @@ a:is(.model-card, .search-card):is(:hover, :focus-visible) img {
     filter: brightness(1);
 }
 
-/* image-overlay text — shared with the world slider in [15] */
+/* image-overlay text — shared with the ownership slider in [15] */
 .model-name,
 .model-tag,
-.world-title,
-.world-caption {
+.ownership-title,
+.ownership-caption {
     position: absolute;
     left: var(--overlay-inline);
     line-height: var(--leading-tight);
 }
 
 .model-name,
-.world-title {
+.ownership-title {
     bottom: clamp(var(--space-md), 7vw, var(--space-2xl));
     font-size: clamp(var(--text-base), 2.4vw, var(--text-3xl));
     font-weight: 500;
@@ -625,7 +625,7 @@ a:is(.model-card, .search-card):is(:hover, :focus-visible) img {
 }
 
 .model-tag,
-.world-caption {
+.ownership-caption {
     bottom: clamp(var(--space-2xs), 4vw, var(--space-lg));
     font-weight: 300;
     letter-spacing: var(--tracking-base);
@@ -1060,29 +1060,29 @@ a.search-card {
     color: var(--text-dim);
 }
 
-/* === [15] WORLD SLIDER ================================================== */
-.world-stage {
+/* === [15] OWNERSHIP SLIDER ============================================= */
+.ownership-stage {
     overflow: hidden;
     background: var(--bg);
 }
 
-.world-slide {
+.ownership-slide {
     display: none;
     position: relative;
     overflow: hidden;
     background: var(--bg);
 }
 
-.world-slide.is-active {
+.ownership-slide.is-active {
     display: block;
 }
 
-.world-slide img {
+.ownership-slide img {
     width: 100%;
     height: auto;
 }
 
-.world-slide::after {
+.ownership-slide::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -1095,17 +1095,17 @@ a.search-card {
 
 /* position + typography shared with the model cards — see [09].
    z-index lifts the text above the ::after gradient. */
-.world-title,
-.world-caption {
+.ownership-title,
+.ownership-caption {
     z-index: 1;
 }
 
-.world-caption {
+.ownership-caption {
     max-width: 28ch;
     font-size: clamp(var(--text-sm), 1.2vw, var(--text-base));
 }
 
-.world-controls {
+.ownership-controls {
     width: fit-content;
     display: flex;
     align-items: center;
@@ -1114,7 +1114,7 @@ a.search-card {
     margin: var(--space-lg) auto 0;
 }
 
-.world-count {
+.ownership-count {
     min-width: var(--space-3xl);
     text-align: center;
     font-size: var(--text-xs);
@@ -1123,7 +1123,7 @@ a.search-card {
     color: var(--text-dim);
 }
 
-.world-arrow {
+.ownership-arrow {
     min-width: var(--space-4xl);
     font: inherit;
     font-size: var(--text-sm);
@@ -1359,7 +1359,7 @@ a.search-card {
     }
 
     .model-card,
-    .world-stage {
+    .ownership-stage {
         width: min(100%, 117svh);
     }
 
@@ -1380,24 +1380,24 @@ a.search-card {
 
     .model-name,
     .model-tag,
-    .world-title,
-    .world-caption {
+    .ownership-title,
+    .ownership-caption {
         max-width: calc(100% - (2 * var(--overlay-inline)));
     }
 
     .model-name,
-    .world-title {
+    .ownership-title {
         bottom: calc(var(--space-md) + 1rem);
         font-size: var(--text-base);
     }
 
     .model-tag,
-    .world-caption {
+    .ownership-caption {
         bottom: var(--space-md);
     }
 
     .model-tag,
-    .world-caption {
+    .ownership-caption {
         font-size: var(--text-sm);
     }
 
@@ -1617,19 +1617,19 @@ a.search-card {
 
     .model-name,
     .model-tag,
-    .world-title,
-    .world-caption {
+    .ownership-title,
+    .ownership-caption {
         max-width: calc(100% - (2 * var(--overlay-inline)));
     }
 
     .model-name,
-    .world-title {
+    .ownership-title {
         bottom: calc(var(--space-md) + 1.2rem);
         font-size: var(--text-base);
     }
 
     .model-tag,
-    .world-caption {
+    .ownership-caption {
         bottom: var(--space-md);
     }
 
@@ -1637,7 +1637,7 @@ a.search-card {
         font-size: var(--text-sm);
     }
 
-    .world-caption {
+    .ownership-caption {
         font-size: 0.8rem;
     }
 
@@ -1647,7 +1647,7 @@ a.search-card {
         gap: var(--space-lg);
     }
 
-    .world-controls {
+    .ownership-controls {
         width: 100%;
         justify-content: space-between;
     }

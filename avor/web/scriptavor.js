@@ -144,27 +144,6 @@ if (searchControls) {
   updateSearch();
 }
 
-// listing details
-const listingMore = document.querySelector(".listing-more");
-
-if (listingMore) {
-  const extraSpecs = document.getElementById(
-    listingMore.getAttribute("aria-controls"),
-  );
-
-  listingMore.addEventListener("click", () => {
-    if (!extraSpecs) {
-      return;
-    }
-
-    const isExpanded = listingMore.getAttribute("aria-expanded") === "true";
-
-    listingMore.setAttribute("aria-expanded", String(!isExpanded));
-    extraSpecs.hidden = isExpanded;
-    listingMore.textContent = isExpanded ? "Full Specification" : "Show Less";
-  });
-}
-
 // menu
 const nav = document.querySelector(".nav");
 const navTrigger = document.querySelector(".nav-trigger");
@@ -216,3 +195,27 @@ if (nav && navTrigger) {
     }
   });
 }
+
+// footer "Top" — slower scroll than native (CSS scroll-behavior has no duration knob).
+// Reduced-motion is honored: we bail, leaving the native instant jump in place.
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+document.querySelectorAll(".footer-top").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    if (reduceMotion.matches || window.scrollY === 0) return;
+    event.preventDefault();
+
+    const start = window.scrollY;
+    const t0 = performance.now();
+    const duration = 850; // ms — raise for slower
+
+    // no mid-scroll interrupt guard; a Top link doesn't need one.
+    const tick = (now) => {
+      const p = Math.min((now - t0) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      window.scrollTo({ top: start * (1 - eased), behavior: "instant" }); // 'instant' bypasses CSS smooth
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+});

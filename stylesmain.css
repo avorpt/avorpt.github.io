@@ -477,6 +477,22 @@ body:has(.viewer[open]) {
     object-fit: contain;
 }
 
+.viewer-slide img {
+    cursor: zoom-in;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: transform 0.2s var(--ease);
+}
+
+.viewer-track.is-zoomed .viewer-slide.is-active img {
+    cursor: grab;
+}
+
+.viewer-track.is-panning .viewer-slide.is-active img {
+    cursor: grabbing;
+    transition: none;
+}
+
 .viewer-slide video:focus-visible {
     outline: 2px solid var(--text);
     outline-offset: 2px;

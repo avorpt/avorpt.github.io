@@ -32,7 +32,7 @@ Includes:
 - Brand system  
 - Website  
   - Homepage, Model Pages, Finder, <br>
-    Finder detail view, Accessories, Service
+    Listing detail, Accessories, Service, Cookie Policy
 - Infotainment concept 
   - Driving-focused interaction  
   - Reduced cognitive load  

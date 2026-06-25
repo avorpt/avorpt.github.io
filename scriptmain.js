@@ -133,6 +133,7 @@ function buildViewer() {
   function go(i) {
     const n = state.slides.length;
     if (!n) return;
+    resetZoom();
     state.index = ((i % n) + n) % n; // wrap both directions
     render();
   }
@@ -178,6 +179,10 @@ function buildViewer() {
 
   // Click the backdrop or the empty space around the media to close.
   dialog.addEventListener("click", (event) => {
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
     if (
       event.target === dialog ||
       event.target === track ||
@@ -214,6 +219,7 @@ function buildViewer() {
   track.addEventListener(
     "touchend",
     (event) => {
+      if (zoom.on) return; // panning a zoomed image, not stepping slides
       const dx = event.changedTouches[0].clientX - startX;
       const dy = event.changedTouches[0].clientY - startY;
       if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
@@ -223,7 +229,74 @@ function buildViewer() {
     { passive: true },
   );
 
+  // Zoom + drag-pan. Click the image to toggle 2x; drag to pan while zoomed.
+  // Pointer Events cover mouse, touch and pen in one path.
+  const ZOOM = 2.5;
+  const DRAG = 5; // px of travel that separates a pan from a click
+  const zoom = { on: false, tx: 0, ty: 0 };
+  let pan = null; // active drag
+  let suppressClick = false; // set after a pan so its click doesn't close
+
+  function applyZoom(img) {
+    img.style.transform = zoom.on
+      ? `translate(${zoom.tx}px, ${zoom.ty}px) scale(${ZOOM})`
+      : "";
+  }
+
+  function resetZoom() {
+    zoom.on = false;
+    zoom.tx = zoom.ty = 0;
+    pan = null;
+    track.classList.remove("is-zoomed", "is-panning");
+    track.querySelectorAll("img").forEach((img) => (img.style.transform = ""));
+  }
+
+  track.addEventListener("pointerdown", (event) => {
+    const img = event.target.closest?.(".viewer-slide.is-active img");
+    if (!img) {
+      suppressClick = false; // interaction on empty space → its click may close
+      return;
+    }
+    event.preventDefault(); // suppress native image drag
+    pan = { img, x: event.clientX, y: event.clientY, ox: event.clientX, oy: event.clientY };
+    if (zoom.on) {
+      try { track.setPointerCapture(event.pointerId); } catch {}
+      track.classList.add("is-panning");
+    }
+  });
+
+  track.addEventListener("pointermove", (event) => {
+    if (!pan || !zoom.on) return;
+    const maxX = (pan.img.clientWidth * (ZOOM - 1)) / 2;
+    const maxY = (pan.img.clientHeight * (ZOOM - 1)) / 2;
+    zoom.tx = Math.max(-maxX, Math.min(maxX, zoom.tx + event.clientX - pan.x));
+    zoom.ty = Math.max(-maxY, Math.min(maxY, zoom.ty + event.clientY - pan.y));
+    pan.x = event.clientX;
+    pan.y = event.clientY;
+    applyZoom(pan.img);
+  });
+
+  track.addEventListener("pointerup", (event) => {
+    if (!pan) return;
+    const moved = Math.hypot(event.clientX - pan.ox, event.clientY - pan.oy);
+    suppressClick = true; // pointer began on the image — its click must not close
+    if (moved < DRAG) {
+      zoom.on = !zoom.on; // a click, not a drag: toggle, recentred
+      zoom.tx = zoom.ty = 0;
+      track.classList.toggle("is-zoomed", zoom.on);
+      applyZoom(pan.img);
+    }
+    track.classList.remove("is-panning");
+    pan = null;
+  });
+
+  track.addEventListener("pointercancel", () => {
+    track.classList.remove("is-panning");
+    pan = null;
+  });
+
   dialog.addEventListener("close", () => {
+    resetZoom();
     track.querySelectorAll("video").forEach((v) => v.pause());
     track.replaceChildren();
   });
